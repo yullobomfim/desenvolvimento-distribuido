@@ -1,0 +1,11 @@
+version : "3"
+
+services:
+  noticias:
+    image: servnoticias
+    build: .
+    volumes:
+      - "./servicos:/servicos"
+    command: python3 servico.py
+    expose:
+      - "5000"
