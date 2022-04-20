@@ -2,7 +2,7 @@ import urllib.request, json, time
 import pandas as pd
 
 # rotas do servico de noticias
-URL_SERVICO = "http://172.22.0.2:5000/"
+URL_SERVICO = "http://172.19.0.2:5000/"
 IS_ALIVE = URL_SERVICO + "isalive/"
 JOGATINA = URL_SERVICO + "jogatina/"
 SISTEMAS = URL_SERVICO + "sistemas/"

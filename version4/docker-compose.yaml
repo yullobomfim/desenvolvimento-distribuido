@@ -1,0 +1,26 @@
+version : "3"
+
+services:
+  jogatina:
+    image: servnoticias
+    build: .
+    volumes:
+      - "./servicos/jogatina:/servicos"
+    command: python3 noticias.py
+    ports:
+      - "5001:5000"
+
+  sistemas:
+    image: servnoticias
+    build: .
+    volumes:
+      - "./servicos/sistemas:/servicos"
+    command: python3 noticias.py
+    ports:
+      - "5002:5000"
+
+  banco_volatil:
+    image: memcached
+    hostname: banco_volatil
+    ports:
+      - "11211:11211"
