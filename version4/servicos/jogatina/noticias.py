@@ -1,66 +1,61 @@
-from flask import Flask
+from flask import Flask, request
 from flask import jsonify
+from pymemcache.client import base
 
-noticia = Flask(__name__)
+servico = Flask(__name__)
 
 # "constantes"
 IS_ALIVE = "yes"
 VERSION = "0.0.1"
 AUTHOR = "Yullo Costa Bomfim"
 EMAIL = "yullo.bomfim@gmail.com"
-
-# bd estatico (para testes)
-JOGATINA = [
-    {
-        "id": 1,
-        "data": "15/10/2019",
-        "titulo": "Stadia, serviço de games na nuvem do Google, será lançado em 19 de Novembro",
-        "endereco": "https://g1.globo.com/pop-arte/games/noticia/2019/10/15/stadia-servico-de-games-na-nuvem-do-google-sera-lancado-em-19-de-novembro.ghtml",
-    },
-    {
-        "id": 2,
-        "data": "26/04/2019",
-        "titulo": "Mortal Kombat: Como fazer todos os fatalities?",
-        "endereco": "https://www.uol.com.br/start/ultimas-noticias/2019/04/26/mortal-kombat-11-como-fazer-todas-as-fatalities.htm",
-    },
-    {
-        "id": 3,
-        "data": "21/10/2016",
-        "titulo": "Conheça 5 distribuições GNU/Linux voltadas para jogos",
-        "endereco": "https://sempreupdate.com.br/conheca-5-distribuicoes-gnu-linux-voltadas-para-jogos/",
-    }
-]
-
+BANCO_VOLATIL = "banco_volatil"
 
 # rotas do meu servico
 # rota de ping (o cliente deve perguntar se o servico estah atendendo)
-@noticia.route("/isalive/")
+
+
+@servico.route("/isalive/")
 def is_alive():
     return IS_ALIVE
 
 # rota que retorna informacoes basicas sobre o servico e o autor do servico
-@noticia.route("/info/")
+
+
+@servico.route("/info/")
 def get_info():
     info = jsonify(
-        version = VERSION,
-        author = AUTHOR,
-        email = EMAIL
+        version=VERSION,
+        author=AUTHOR,
+        email=EMAIL
     )
 
     return info
 
+
+@servico.route("/gravar/", methods=["post", "get"])
+def gravar():
+    noticias = request.get_json()
+    if noticias:
+        cliente = base.Client((BANCO_VOLATIL, 11211))
+        cliente.set("jogatina", noticias)
+        cliente.close()
+
+    return "OK"
+
+
 # rota que retorna noticias sobre jogos eletronicos
-@noticia.route("/jogatina/")
+@servico.route("/noticias/")
 def get_jogatina():
-    noticias = jsonify(
-        JOGATINA
-    )
+    cliente = base.Client((BANCO_VOLATIL, 11211))
+    noticias = cliente.get("jogatina")
+    cliente.close()
 
     return noticias
 
 
 if __name__ == "__main__":
-    noticia.run(
-        host = "0.0.0.0",
+    servico.run(
+        host="0.0.0.0",
         debug=True
     )
